@@ -1,0 +1,11 @@
+---
+title: "Modeling"
+author: "Eric Song"
+format: html
+editor: visual
+---
+
+## Quarto
+
+
+[Click here for the EDA](EDA.html)

@@ -1,0 +1,17 @@
+---
+title: "EDA"
+author: "Eric Song"
+format: html
+editor: visual
+---
+
+## Quarto
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+beetus_data<-read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
+beetus_data
+```
+
+[Click here for the Modeling Page](Modeling.html)
