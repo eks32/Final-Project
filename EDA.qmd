@@ -5,13 +5,118 @@ format: html
 editor: visual
 ---
 
-## Quarto
+## Exploration
+
+Let's take a look at our data.  Let's start with looking at the data/variable types and checking for missing values.
 
 ```{r}
 library(tidyverse)
 library(tidymodels)
 beetus_data<-read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
-beetus_data
+#Quick look at data types
+str(beetus_data)
+#Checking for Missing Data
+beetus_data |>
+  is.na()|>
+  colSums()
+```
+
+There seems to be no missing values.  Based on the look at structure, we might have some factor variables.  Before that though, checking a quick summary for our variables. 
+
+```{r}
+summary(beetus_data)
+```
+
+Looks like we have some factors.  Checking for unique values.
+
+```{r}
+beetus_data |>
+  summarise(across(everything(), ~ list(unique(.))))
+```
+
+Looks like we do have multiple factors.  <dbl[2]>s are binary values.  Education/income seem to be factors as well.  Going to the dataset's source website: https://archive.ics.uci.edu/dataset/891/cdc+diabetes+health+indicators
+we find descriptions for our variables.  Applying formatting to our variables now.
+
+```{r}
+beetus_data <- beetus_data |>
+  mutate(
+    Diabetes_binary = factor(Diabetes_binary, levels=c('0','1'), labels = c("No Diabetes", "Pre/Diabetes")),
+    HighBP = factor(HighBP, labels = c("No High BP", "High BP")),
+    HighChol = factor(HighChol, labels = c("No High Cholesterol", "High Cholesterol")),
+    CholCheck = factor(CholCheck, labels = c("No Cholesterol Check", "Cholesterol Check")),
+    Smoker = factor(Smoker, labels = c("Non-Smoker", "Smoker")),
+    Stroke = factor(Stroke, labels = c("No Stroke", "Stroke")),
+    HeartDiseaseorAttack = factor(HeartDiseaseorAttack, labels = c("No", "Yes")),
+    PhysActivity = factor(PhysActivity, labels = c("No Physical Activity", "Physical Activity")),
+    Fruits = factor(Fruits, labels = c("No", "Yes")),
+    Veggies = factor(Veggies, labels = c("No", "Yes")),
+    HvyAlcoholConsump = factor(HvyAlcoholConsump, labels = c("No", "Yes")),
+    AnyHealthcare = factor(AnyHealthcare, labels = c("No", "Yes")),
+    NoDocbcCost = factor(NoDocbcCost, labels = c("No", "Yes")),
+    DiffWalk = factor(DiffWalk, labels = c("No", "Yes")),
+    Sex = factor(Sex, labels = c("Female", "Male")),
+    GenHlth = factor(GenHlth, labels = c("Excellent", "Very Good", "Good", "Fair", "Poor")),
+    Education = factor(Education, labels = c(
+      "Never Attended School or only kindergarten",
+      "Grades 1-8",
+      "Grades 9-11",
+      "Grade 12/GED",
+      "Some College/Technical School",
+      "College Graduate"
+    )),
+    Income = factor(Income, labels = c(
+      "Less than $10,000",
+      "$10,000 to $15,000",
+      "$15,000 to $20,000",
+      "$20,000 to $25,000",
+      "$25,000 to $35,000",
+      "$35,000 to $50,000",
+      "$50,000 to $75,000",
+      "$75,000 or more"
+    )),
+    Age = factor(Age, labels = c(
+      "18-24", "25-29", "30-34", "35-39", "40-44",
+      "45-49", "50-54", "55-59", "60-64", "65-69",
+      "70-74", "75-79", "80 or older"
+    ))
+  )
+str(beetus_data)
+```
+
+18 Categorical Variables and 3 Numerical variables.  Now our data is tidy,
+let's make some contingency tables since we have a bunch of factors.
+```{r}
+cont_tables <- lapply(names(beetus_data)[-which(names(beetus_data) == "Diabetes_binary")], function(var) {
+  table(beetus_data[[var]], beetus_data$Diabetes_binary)
+})
+
+names(cont_tables) <- names(beetus_data)[-which(names(beetus_data) == "Diabetes_binary")]
+
+cont_tables
+```
+
+
+Let's make some graphs as well.
+
+#distributions for bmi/age etc...
+```{r}
+ggplot(beetus_data, aes(x = Diabetes_binary)) +
+  geom_bar()
+
+ggplot(beetus_data, aes(x =  Diabetes_binary )) + geom_bar()
+ggplot(beetus_data, aes(x =  Smoker )) + geom_bar()
+ggplot(beetus_data, aes(x =  HighBP )) + geom_bar()
+ggplot(beetus_data, aes(x =  HighChol )) + geom_bar()
+```
+```{r}
+```
+
+```{r}
+#Correlation Matrix
+beetus_data |>
+select(where(is.numeric)) |>
+cor() |>
+round(3)
 ```
 
 [Click here for the Modeling Page](Modeling.html)

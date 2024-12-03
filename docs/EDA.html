@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Eric Song">
+
+<title>EDA</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-search-results"></div>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">EDA</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Eric Song </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="exploration" class="level2">
+<h2 class="anchored" data-anchor-id="exploration">Exploration</h2>
+<p>Let’s take a look at our data. Let’s start with looking at the data/variable types and checking for missing values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'tidyverse' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ggplot2' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'tibble' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'tidyr' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'readr' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'purrr' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'dplyr' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'stringr' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'forcats' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'lubridate' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'tidymodels' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages ────────────────────────────────────── tidymodels 1.2.0 ──
+✔ broom        1.0.7     ✔ rsample      1.2.1
+✔ dials        1.3.0     ✔ tune         1.2.1
+✔ infer        1.0.7     ✔ workflows    1.1.4
+✔ modeldata    1.4.0     ✔ workflowsets 1.1.0
+✔ parsnip      1.2.1     ✔ yardstick    1.3.1
+✔ recipes      1.1.0     </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'broom' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'dials' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'scales' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'infer' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'modeldata' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'parsnip' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'recipes' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'rsample' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'tune' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'workflows' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'workflowsets' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'yardstick' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+✖ scales::discard() masks purrr::discard()
+✖ dplyr::filter()   masks stats::filter()
+✖ recipes::fixed()  masks stringr::fixed()
+✖ dplyr::lag()      masks stats::lag()
+✖ yardstick::spec() masks readr::spec()
+✖ recipes::step()   masks stats::step()
+• Use suppressPackageStartupMessages() to eliminate package startup messages</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>beetus_data<span class="ot">&lt;-</span><span class="fu">read_csv</span>(<span class="st">"diabetes_binary_health_indicators_BRFSS2015.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 253680 Columns: 22
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Quick look at data types</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(beetus_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>spc_tbl_ [253,680 × 22] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+ $ Diabetes_binary     : num [1:253680] 0 0 0 0 0 0 0 0 1 0 ...
+ $ HighBP              : num [1:253680] 1 0 1 1 1 1 1 1 1 0 ...
+ $ HighChol            : num [1:253680] 1 0 1 0 1 1 0 1 1 0 ...
+ $ CholCheck           : num [1:253680] 1 0 1 1 1 1 1 1 1 1 ...
+ $ BMI                 : num [1:253680] 40 25 28 27 24 25 30 25 30 24 ...
+ $ Smoker              : num [1:253680] 1 1 0 0 0 1 1 1 1 0 ...
+ $ Stroke              : num [1:253680] 0 0 0 0 0 0 0 0 0 0 ...
+ $ HeartDiseaseorAttack: num [1:253680] 0 0 0 0 0 0 0 0 1 0 ...
+ $ PhysActivity        : num [1:253680] 0 1 0 1 1 1 0 1 0 0 ...
+ $ Fruits              : num [1:253680] 0 0 1 1 1 1 0 0 1 0 ...
+ $ Veggies             : num [1:253680] 1 0 0 1 1 1 0 1 1 1 ...
+ $ HvyAlcoholConsump   : num [1:253680] 0 0 0 0 0 0 0 0 0 0 ...
+ $ AnyHealthcare       : num [1:253680] 1 0 1 1 1 1 1 1 1 1 ...
+ $ NoDocbcCost         : num [1:253680] 0 1 1 0 0 0 0 0 0 0 ...
+ $ GenHlth             : num [1:253680] 5 3 5 2 2 2 3 3 5 2 ...
+ $ MentHlth            : num [1:253680] 18 0 30 0 3 0 0 0 30 0 ...
+ $ PhysHlth            : num [1:253680] 15 0 30 0 0 2 14 0 30 0 ...
+ $ DiffWalk            : num [1:253680] 1 0 1 0 0 0 0 1 1 0 ...
+ $ Sex                 : num [1:253680] 0 0 0 0 0 1 0 0 0 1 ...
+ $ Age                 : num [1:253680] 9 7 9 11 11 10 9 11 9 8 ...
+ $ Education           : num [1:253680] 4 6 4 3 5 6 6 4 5 4 ...
+ $ Income              : num [1:253680] 3 1 8 6 4 8 7 4 1 3 ...
+ - attr(*, "spec")=
+  .. cols(
+  ..   Diabetes_binary = col_double(),
+  ..   HighBP = col_double(),
+  ..   HighChol = col_double(),
+  ..   CholCheck = col_double(),
+  ..   BMI = col_double(),
+  ..   Smoker = col_double(),
+  ..   Stroke = col_double(),
+  ..   HeartDiseaseorAttack = col_double(),
+  ..   PhysActivity = col_double(),
+  ..   Fruits = col_double(),
+  ..   Veggies = col_double(),
+  ..   HvyAlcoholConsump = col_double(),
+  ..   AnyHealthcare = col_double(),
+  ..   NoDocbcCost = col_double(),
+  ..   GenHlth = col_double(),
+  ..   MentHlth = col_double(),
+  ..   PhysHlth = col_double(),
+  ..   DiffWalk = col_double(),
+  ..   Sex = col_double(),
+  ..   Age = col_double(),
+  ..   Education = col_double(),
+  ..   Income = col_double()
+  .. )
+ - attr(*, "problems")=&lt;externalptr&gt; </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Checking for Missing Data</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>beetus_data <span class="sc">|&gt;</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">is.na</span>()<span class="sc">|&gt;</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colSums</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Diabetes_binary               HighBP             HighChol 
+                   0                    0                    0 
+           CholCheck                  BMI               Smoker 
+                   0                    0                    0 
+              Stroke HeartDiseaseorAttack         PhysActivity 
+                   0                    0                    0 
+              Fruits              Veggies    HvyAlcoholConsump 
+                   0                    0                    0 
+       AnyHealthcare          NoDocbcCost              GenHlth 
+                   0                    0                    0 
+            MentHlth             PhysHlth             DiffWalk 
+                   0                    0                    0 
+                 Sex                  Age            Education 
+                   0                    0                    0 
+              Income 
+                   0 </code></pre>
+</div>
+</div>
+<p>There seems to be no missing values. Based on the look at structure, we might have some factor variables. Before that though, checking a quick summary for our variables.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(beetus_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Diabetes_binary      HighBP         HighChol        CholCheck     
+ Min.   :0.0000   Min.   :0.000   Min.   :0.0000   Min.   :0.0000  
+ 1st Qu.:0.0000   1st Qu.:0.000   1st Qu.:0.0000   1st Qu.:1.0000  
+ Median :0.0000   Median :0.000   Median :0.0000   Median :1.0000  
+ Mean   :0.1393   Mean   :0.429   Mean   :0.4241   Mean   :0.9627  
+ 3rd Qu.:0.0000   3rd Qu.:1.000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+ Max.   :1.0000   Max.   :1.000   Max.   :1.0000   Max.   :1.0000  
+      BMI            Smoker           Stroke        HeartDiseaseorAttack
+ Min.   :12.00   Min.   :0.0000   Min.   :0.00000   Min.   :0.00000     
+ 1st Qu.:24.00   1st Qu.:0.0000   1st Qu.:0.00000   1st Qu.:0.00000     
+ Median :27.00   Median :0.0000   Median :0.00000   Median :0.00000     
+ Mean   :28.38   Mean   :0.4432   Mean   :0.04057   Mean   :0.09419     
+ 3rd Qu.:31.00   3rd Qu.:1.0000   3rd Qu.:0.00000   3rd Qu.:0.00000     
+ Max.   :98.00   Max.   :1.0000   Max.   :1.00000   Max.   :1.00000     
+  PhysActivity        Fruits          Veggies       HvyAlcoholConsump
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   
+ 1st Qu.:1.0000   1st Qu.:0.0000   1st Qu.:1.0000   1st Qu.:0.0000   
+ Median :1.0000   Median :1.0000   Median :1.0000   Median :0.0000   
+ Mean   :0.7565   Mean   :0.6343   Mean   :0.8114   Mean   :0.0562   
+ 3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:0.0000   
+ Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   
+ AnyHealthcare     NoDocbcCost         GenHlth         MentHlth     
+ Min.   :0.0000   Min.   :0.00000   Min.   :1.000   Min.   : 0.000  
+ 1st Qu.:1.0000   1st Qu.:0.00000   1st Qu.:2.000   1st Qu.: 0.000  
+ Median :1.0000   Median :0.00000   Median :2.000   Median : 0.000  
+ Mean   :0.9511   Mean   :0.08418   Mean   :2.511   Mean   : 3.185  
+ 3rd Qu.:1.0000   3rd Qu.:0.00000   3rd Qu.:3.000   3rd Qu.: 2.000  
+ Max.   :1.0000   Max.   :1.00000   Max.   :5.000   Max.   :30.000  
+    PhysHlth         DiffWalk           Sex              Age        
+ Min.   : 0.000   Min.   :0.0000   Min.   :0.0000   Min.   : 1.000  
+ 1st Qu.: 0.000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.: 6.000  
+ Median : 0.000   Median :0.0000   Median :0.0000   Median : 8.000  
+ Mean   : 4.242   Mean   :0.1682   Mean   :0.4403   Mean   : 8.032  
+ 3rd Qu.: 3.000   3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:10.000  
+ Max.   :30.000   Max.   :1.0000   Max.   :1.0000   Max.   :13.000  
+   Education        Income     
+ Min.   :1.00   Min.   :1.000  
+ 1st Qu.:4.00   1st Qu.:5.000  
+ Median :5.00   Median :7.000  
+ Mean   :5.05   Mean   :6.054  
+ 3rd Qu.:6.00   3rd Qu.:8.000  
+ Max.   :6.00   Max.   :8.000  </code></pre>
+</div>
+</div>
+<p>Looks like we have some factors. Checking for unique values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>beetus_data <span class="sc">|&gt;</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span> <span class="fu">list</span>(<span class="fu">unique</span>(.))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 22
+  Diabetes_binary HighBP    HighChol  CholCheck BMI        Smoker    Stroke   
+  &lt;list&gt;          &lt;list&gt;    &lt;list&gt;    &lt;list&gt;    &lt;list&gt;     &lt;list&gt;    &lt;list&gt;   
+1 &lt;dbl [2]&gt;       &lt;dbl [2]&gt; &lt;dbl [2]&gt; &lt;dbl [2]&gt; &lt;dbl [84]&gt; &lt;dbl [2]&gt; &lt;dbl [2]&gt;
+# ℹ 15 more variables: HeartDiseaseorAttack &lt;list&gt;, PhysActivity &lt;list&gt;,
+#   Fruits &lt;list&gt;, Veggies &lt;list&gt;, HvyAlcoholConsump &lt;list&gt;,
+#   AnyHealthcare &lt;list&gt;, NoDocbcCost &lt;list&gt;, GenHlth &lt;list&gt;, MentHlth &lt;list&gt;,
+#   PhysHlth &lt;list&gt;, DiffWalk &lt;list&gt;, Sex &lt;list&gt;, Age &lt;list&gt;, Education &lt;list&gt;,
+#   Income &lt;list&gt;</code></pre>
+</div>
+</div>
+<p>Looks like we do have multiple factors. &lt;dbl[2]&gt;s are binary values. Education/income seem to be factors as well. Going to the dataset’s source website: https://archive.ics.uci.edu/dataset/891/cdc+diabetes+health+indicators we find descriptions for our variables. Applying formatting to our variables now.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>beetus_data <span class="ot">&lt;-</span> beetus_data <span class="sc">|&gt;</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Diabetes_binary =</span> <span class="fu">factor</span>(Diabetes_binary, <span class="at">levels=</span><span class="fu">c</span>(<span class="st">'0'</span>,<span class="st">'1'</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Diabetes"</span>, <span class="st">"Pre/Diabetes"</span>)),</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">HighBP =</span> <span class="fu">factor</span>(HighBP, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No High BP"</span>, <span class="st">"High BP"</span>)),</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">HighChol =</span> <span class="fu">factor</span>(HighChol, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No High Cholesterol"</span>, <span class="st">"High Cholesterol"</span>)),</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">CholCheck =</span> <span class="fu">factor</span>(CholCheck, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Cholesterol Check"</span>, <span class="st">"Cholesterol Check"</span>)),</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Smoker =</span> <span class="fu">factor</span>(Smoker, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Non-Smoker"</span>, <span class="st">"Smoker"</span>)),</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">Stroke =</span> <span class="fu">factor</span>(Stroke, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Stroke"</span>, <span class="st">"Stroke"</span>)),</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">HeartDiseaseorAttack =</span> <span class="fu">factor</span>(HeartDiseaseorAttack, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No"</span>, <span class="st">"Yes"</span>)),</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">PhysActivity =</span> <span class="fu">factor</span>(PhysActivity, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No Physical Activity"</span>, <span class="st">"Physical Activity"</span>)),</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">Fruits =</span> <span class="fu">factor</span>(Fruits, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No"</span>, <span class="st">"Yes"</span>)),</span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">Veggies =</span> <span class="fu">factor</span>(Veggies, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No"</span>, <span class="st">"Yes"</span>)),</span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">HvyAlcoholConsump =</span> <span class="fu">factor</span>(HvyAlcoholConsump, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No"</span>, <span class="st">"Yes"</span>)),</span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">AnyHealthcare =</span> <span class="fu">factor</span>(AnyHealthcare, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No"</span>, <span class="st">"Yes"</span>)),</span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">NoDocbcCost =</span> <span class="fu">factor</span>(NoDocbcCost, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No"</span>, <span class="st">"Yes"</span>)),</span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">DiffWalk =</span> <span class="fu">factor</span>(DiffWalk, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No"</span>, <span class="st">"Yes"</span>)),</span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sex =</span> <span class="fu">factor</span>(Sex, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Female"</span>, <span class="st">"Male"</span>)),</span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">GenHlth =</span> <span class="fu">factor</span>(GenHlth, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Excellent"</span>, <span class="st">"Very Good"</span>, <span class="st">"Good"</span>, <span class="st">"Fair"</span>, <span class="st">"Poor"</span>)),</span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">Education =</span> <span class="fu">factor</span>(Education, <span class="at">labels =</span> <span class="fu">c</span>(</span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Never Attended School or only kindergarten"</span>,</span>
+<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Grades 1-8"</span>,</span>
+<span id="cb39-22"><a href="#cb39-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Grades 9-11"</span>,</span>
+<span id="cb39-23"><a href="#cb39-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Grade 12/GED"</span>,</span>
+<span id="cb39-24"><a href="#cb39-24" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Some College/Technical School"</span>,</span>
+<span id="cb39-25"><a href="#cb39-25" aria-hidden="true" tabindex="-1"></a>      <span class="st">"College Graduate"</span></span>
+<span id="cb39-26"><a href="#cb39-26" aria-hidden="true" tabindex="-1"></a>    )),</span>
+<span id="cb39-27"><a href="#cb39-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">Income =</span> <span class="fu">factor</span>(Income, <span class="at">labels =</span> <span class="fu">c</span>(</span>
+<span id="cb39-28"><a href="#cb39-28" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Less than $10,000"</span>,</span>
+<span id="cb39-29"><a href="#cb39-29" aria-hidden="true" tabindex="-1"></a>      <span class="st">"$10,000 to $15,000"</span>,</span>
+<span id="cb39-30"><a href="#cb39-30" aria-hidden="true" tabindex="-1"></a>      <span class="st">"$15,000 to $20,000"</span>,</span>
+<span id="cb39-31"><a href="#cb39-31" aria-hidden="true" tabindex="-1"></a>      <span class="st">"$20,000 to $25,000"</span>,</span>
+<span id="cb39-32"><a href="#cb39-32" aria-hidden="true" tabindex="-1"></a>      <span class="st">"$25,000 to $35,000"</span>,</span>
+<span id="cb39-33"><a href="#cb39-33" aria-hidden="true" tabindex="-1"></a>      <span class="st">"$35,000 to $50,000"</span>,</span>
+<span id="cb39-34"><a href="#cb39-34" aria-hidden="true" tabindex="-1"></a>      <span class="st">"$50,000 to $75,000"</span>,</span>
+<span id="cb39-35"><a href="#cb39-35" aria-hidden="true" tabindex="-1"></a>      <span class="st">"$75,000 or more"</span></span>
+<span id="cb39-36"><a href="#cb39-36" aria-hidden="true" tabindex="-1"></a>    )),</span>
+<span id="cb39-37"><a href="#cb39-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">Age =</span> <span class="fu">factor</span>(Age, <span class="at">labels =</span> <span class="fu">c</span>(</span>
+<span id="cb39-38"><a href="#cb39-38" aria-hidden="true" tabindex="-1"></a>      <span class="st">"18-24"</span>, <span class="st">"25-29"</span>, <span class="st">"30-34"</span>, <span class="st">"35-39"</span>, <span class="st">"40-44"</span>,</span>
+<span id="cb39-39"><a href="#cb39-39" aria-hidden="true" tabindex="-1"></a>      <span class="st">"45-49"</span>, <span class="st">"50-54"</span>, <span class="st">"55-59"</span>, <span class="st">"60-64"</span>, <span class="st">"65-69"</span>,</span>
+<span id="cb39-40"><a href="#cb39-40" aria-hidden="true" tabindex="-1"></a>      <span class="st">"70-74"</span>, <span class="st">"75-79"</span>, <span class="st">"80 or older"</span></span>
+<span id="cb39-41"><a href="#cb39-41" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb39-42"><a href="#cb39-42" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb39-43"><a href="#cb39-43" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(beetus_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [253,680 × 22] (S3: tbl_df/tbl/data.frame)
+ $ Diabetes_binary     : Factor w/ 2 levels "No Diabetes",..: 1 1 1 1 1 1 1 1 2 1 ...
+ $ HighBP              : Factor w/ 2 levels "No High BP","High BP": 2 1 2 2 2 2 2 2 2 1 ...
+ $ HighChol            : Factor w/ 2 levels "No High Cholesterol",..: 2 1 2 1 2 2 1 2 2 1 ...
+ $ CholCheck           : Factor w/ 2 levels "No Cholesterol Check",..: 2 1 2 2 2 2 2 2 2 2 ...
+ $ BMI                 : num [1:253680] 40 25 28 27 24 25 30 25 30 24 ...
+ $ Smoker              : Factor w/ 2 levels "Non-Smoker","Smoker": 2 2 1 1 1 2 2 2 2 1 ...
+ $ Stroke              : Factor w/ 2 levels "No Stroke","Stroke": 1 1 1 1 1 1 1 1 1 1 ...
+ $ HeartDiseaseorAttack: Factor w/ 2 levels "No","Yes": 1 1 1 1 1 1 1 1 2 1 ...
+ $ PhysActivity        : Factor w/ 2 levels "No Physical Activity",..: 1 2 1 2 2 2 1 2 1 1 ...
+ $ Fruits              : Factor w/ 2 levels "No","Yes": 1 1 2 2 2 2 1 1 2 1 ...
+ $ Veggies             : Factor w/ 2 levels "No","Yes": 2 1 1 2 2 2 1 2 2 2 ...
+ $ HvyAlcoholConsump   : Factor w/ 2 levels "No","Yes": 1 1 1 1 1 1 1 1 1 1 ...
+ $ AnyHealthcare       : Factor w/ 2 levels "No","Yes": 2 1 2 2 2 2 2 2 2 2 ...
+ $ NoDocbcCost         : Factor w/ 2 levels "No","Yes": 1 2 2 1 1 1 1 1 1 1 ...
+ $ GenHlth             : Factor w/ 5 levels "Excellent","Very Good",..: 5 3 5 2 2 2 3 3 5 2 ...
+ $ MentHlth            : num [1:253680] 18 0 30 0 3 0 0 0 30 0 ...
+ $ PhysHlth            : num [1:253680] 15 0 30 0 0 2 14 0 30 0 ...
+ $ DiffWalk            : Factor w/ 2 levels "No","Yes": 2 1 2 1 1 1 1 2 2 1 ...
+ $ Sex                 : Factor w/ 2 levels "Female","Male": 1 1 1 1 1 2 1 1 1 2 ...
+ $ Age                 : Factor w/ 13 levels "18-24","25-29",..: 9 7 9 11 11 10 9 11 9 8 ...
+ $ Education           : Factor w/ 6 levels "Never Attended School or only kindergarten",..: 4 6 4 3 5 6 6 4 5 4 ...
+ $ Income              : Factor w/ 8 levels "Less than $10,000",..: 3 1 8 6 4 8 7 4 1 3 ...</code></pre>
+</div>
+</div>
+<p>18 Categorical Variables and 3 Numerical variables. Now our data is tidy, let’s make some contingency tables since we have a bunch of factors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>cont_tables <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">names</span>(beetus_data)[<span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(beetus_data) <span class="sc">==</span> <span class="st">"Diabetes_binary"</span>)], <span class="cf">function</span>(var) {</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">table</span>(beetus_data[[var]], beetus_data<span class="sc">$</span>Diabetes_binary)</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(cont_tables) <span class="ot">&lt;-</span> <span class="fu">names</span>(beetus_data)[<span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(beetus_data) <span class="sc">==</span> <span class="st">"Diabetes_binary"</span>)]</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>cont_tables</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$HighBP
+            
+             No Diabetes Pre/Diabetes
+  No High BP      136109         8742
+  High BP          82225        26604
+
+$HighChol
+                     
+                      No Diabetes Pre/Diabetes
+  No High Cholesterol      134429        11660
+  High Cholesterol          83905        23686
+
+$CholCheck
+                      
+                       No Diabetes Pre/Diabetes
+  No Cholesterol Check        9229          241
+  Cholesterol Check         209105        35105
+
+$BMI
+    
+     No Diabetes Pre/Diabetes
+  12           6            0
+  13          19            2
+  14          37            4
+  15         120           12
+  16         328           20
+  17         728           48
+  18        1720           83
+  19        3833          135
+  20        6086          241
+  21        9376          479
+  22       12952          691
+  23       14697          913
+  24       18081         1469
+  25       15695         1451
+  26       18560         2002
+  27       21849         2757
+  28       14294         2251
+  29       12659         2231
+  30       12251         2322
+  31       10163         2112
+  32        8354         2120
+  33        6908         2040
+  34        5494         1687
+  35        4131         1444
+  36        3393         1240
+  37        3029         1118
+  38        2385         1012
+  39        2056          855
+  40        1534          724
+  41        1141          518
+  42        1127          512
+  43         989          511
+  44         697          346
+  45         517          302
+  46         471          279
+  47         404          218
+  48         304          180
+  49         250          166
+  50         224          148
+  51         155           98
+  52         129           86
+  53         152           85
+  54          65           48
+  55         104           65
+  56          66           43
+  57          61           25
+  58          36           35
+  59          32           22
+  60          38           25
+  61          21           14
+  62          27           16
+  63          16           18
+  64          16            8
+  65           9           10
+  66           4            9
+  67           9            6
+  68           8            6
+  69           6            3
+  70          10            5
+  71          44            5
+  72           7            7
+  73          44            3
+  74          15            1
+  75          46            6
+  76           3            0
+  77          48            7
+  78           0            1
+  79          62            4
+  80           1            1
+  81          42            7
+  82          31            6
+  83           1            1
+  84          39            5
+  85           0            1
+  86           1            0
+  87          52            9
+  88           2            0
+  89          25            3
+  90           1            0
+  91           1            0
+  92          27            5
+  95          11            1
+  96           1            0
+  98           4            3
+
+$Smoker
+            
+             No Diabetes Pre/Diabetes
+  Non-Smoker      124228        17029
+  Smoker           94106        18317
+
+$Stroke
+           
+            No Diabetes Pre/Diabetes
+  No Stroke      211310        32078
+  Stroke           7024         3268
+
+$HeartDiseaseorAttack
+     
+      No Diabetes Pre/Diabetes
+  No       202319        27468
+  Yes       16015         7878
+
+$PhysActivity
+                      
+                       No Diabetes Pre/Diabetes
+  No Physical Activity       48701        13059
+  Physical Activity         169633        22287
+
+$Fruits
+     
+      No Diabetes Pre/Diabetes
+  No        78129        14653
+  Yes      140205        20693
+
+$Veggies
+     
+      No Diabetes Pre/Diabetes
+  No        39229         8610
+  Yes      179105        26736
+
+$HvyAlcoholConsump
+     
+      No Diabetes Pre/Diabetes
+  No       204910        34514
+  Yes       13424          832
+
+$AnyHealthcare
+     
+      No Diabetes Pre/Diabetes
+  No        10995         1422
+  Yes      207339        33924
+
+$NoDocbcCost
+     
+      No Diabetes Pre/Diabetes
+  No       200722        31604
+  Yes       17612         3742
+
+$GenHlth
+           
+            No Diabetes Pre/Diabetes
+  Excellent       44159         1140
+  Very Good       82703         6381
+  Good            62189        13457
+  Fair            21780         9790
+  Poor             7503         4578
+
+$MentHlth
+    
+     No Diabetes Pre/Diabetes
+  0       152277        23403
+  1         7726          812
+  2        11546         1508
+  3         6457          924
+  4         3300          489
+  5         7807         1223
+  6          824          164
+  7         2695          405
+  8          529          110
+  9           78           13
+  10        5309         1064
+  11          38            3
+  12         331           67
+  13          33            8
+  14         969          198
+  15        4482         1023
+  16          74           14
+  17          43           11
+  18          77           20
+  19          12            4
+  20        2701          663
+  21         179           48
+  22          52           11
+  23          30            8
+  24          27            6
+  25         915          273
+  26          38            7
+  27          67           12
+  28         270           57
+  29         128           30
+  30        9320         2768
+
+$PhysHlth
+    
+     No Diabetes Pre/Diabetes
+  0       143312        16740
+  1        10200         1188
+  2        12736         2028
+  3         7206         1289
+  4         3779          763
+  5         6308         1314
+  6         1048          282
+  7         3795          743
+  8          650          159
+  9          143           36
+  10        4305         1290
+  11          48           12
+  12         449          129
+  13          52           16
+  14        2114          473
+  15        3621         1295
+  16          78           34
+  17          69           27
+  18         117           35
+  19          19            3
+  20        2356          917
+  21         524          139
+  22          47           23
+  23          40           16
+  24          57           15
+  25         942          394
+  26          47           22
+  27          78           21
+  28         379          143
+  29         141           74
+  30       13674         5726
+
+$DiffWalk
+     
+      No Diabetes Pre/Diabetes
+  No       188780        22225
+  Yes       29554        13121
+
+$Sex
+        
+         No Diabetes Pre/Diabetes
+  Female      123563        18411
+  Male         94771        16935
+
+$Age
+             
+              No Diabetes Pre/Diabetes
+  18-24              5622           78
+  25-29              7458          140
+  30-34             10809          314
+  35-39             13197          626
+  40-44             15106         1051
+  45-49             18077         1742
+  50-54             23226         3088
+  55-59             26569         4263
+  60-64             27511         5733
+  65-69             25636         6558
+  70-74             18392         5141
+  75-79             12577         3403
+  80 or older       14154         3209
+
+$Education
+                                            
+                                             No Diabetes Pre/Diabetes
+  Never Attended School or only kindergarten         127           47
+  Grades 1-8                                        2860         1183
+  Grades 9-11                                       7182         2296
+  Grade 12/GED                                     51684        11066
+  Some College/Technical School                    59556        10354
+  College Graduate                                 96925        10400
+
+$Income
+                    
+                     No Diabetes Pre/Diabetes
+  Less than $10,000         7428         2383
+  $10,000 to $15,000        8697         3086
+  $15,000 to $20,000       12426         3568
+  $20,000 to $25,000       16081         4054
+  $25,000 to $35,000       21379         4504
+  $35,000 to $50,000       31179         5291
+  $50,000 to $75,000       37954         5265
+  $75,000 or more          83190         7195</code></pre>
+</div>
+</div>
+<p>Let’s make some graphs as well.</p>
+<p>#distributions for bmi/age etc…</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(beetus_data, <span class="fu">aes</span>(<span class="at">x =</span> Diabetes_binary)) <span class="sc">+</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="EDA_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(beetus_data, <span class="fu">aes</span>(<span class="at">x =</span>  Diabetes_binary )) <span class="sc">+</span> <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="EDA_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(beetus_data, <span class="fu">aes</span>(<span class="at">x =</span>  Smoker )) <span class="sc">+</span> <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="EDA_files/figure-html/unnamed-chunk-6-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(beetus_data, <span class="fu">aes</span>(<span class="at">x =</span>  HighBP )) <span class="sc">+</span> <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="EDA_files/figure-html/unnamed-chunk-6-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(beetus_data, <span class="fu">aes</span>(<span class="at">x =</span>  HighChol )) <span class="sc">+</span> <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="EDA_files/figure-html/unnamed-chunk-6-5.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Correlation Matrix</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>beetus_data <span class="sc">|&gt;</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span>(<span class="fu">where</span>(is.numeric)) <span class="sc">|&gt;</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>() <span class="sc">|&gt;</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           BMI MentHlth PhysHlth
+BMI      1.000    0.085    0.121
+MentHlth 0.085    1.000    0.354
+PhysHlth 0.121    0.354    1.000</code></pre>
+</div>
+</div>
+<p><a href="Modeling.html">Click here for the Modeling Page</a></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
