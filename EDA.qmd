@@ -5,42 +5,22 @@ format: html
 editor: visual
 ---
 
-## Exploration
 
-Let's take a look at our data.  Let's start with looking at the data/variable types and checking for missing values.
+## Introduction 
 
-```{r}
+#redo
+Let's take a look at our data. Let's start with looking at the data/variable types and checking for missing values.
+
+```{r,warning=FALSE}
 library(tidyverse)
 library(tidymodels)
+```
+
+```{r}
 beetus_data<-read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
-#Quick look at data types
-str(beetus_data)
-#Checking for Missing Data
-beetus_data |>
-  is.na()|>
-  colSums()
-```
-
-There seems to be no missing values.  Based on the look at structure, we might have some factor variables.  Before that though, checking a quick summary for our variables. 
-
-```{r}
-summary(beetus_data)
-```
-
-Looks like we have some factors.  Checking for unique values.
-
-```{r}
-beetus_data |>
-  summarise(across(everything(), ~ list(unique(.))))
-```
-
-Looks like we do have multiple factors.  <dbl[2]>s are binary values.  Education/income seem to be factors as well.  Going to the dataset's source website: https://archive.ics.uci.edu/dataset/891/cdc+diabetes+health+indicators
-we find descriptions for our variables.  Applying formatting to our variables now.
-
-```{r}
 beetus_data <- beetus_data |>
   mutate(
-    Diabetes_binary = factor(Diabetes_binary, levels=c('0','1'), labels = c("No Diabetes", "Pre/Diabetes")),
+    Diabetes_binary = factor(Diabetes_binary, levels=c(0,1), labels = c("No Diabetes", "Pre/Diabetes")),
     HighBP = factor(HighBP, labels = c("No High BP", "High BP")),
     HighChol = factor(HighChol, labels = c("No High Cholesterol", "High Cholesterol")),
     CholCheck = factor(CholCheck, labels = c("No Cholesterol Check", "Cholesterol Check")),
@@ -55,8 +35,8 @@ beetus_data <- beetus_data |>
     NoDocbcCost = factor(NoDocbcCost, labels = c("No", "Yes")),
     DiffWalk = factor(DiffWalk, labels = c("No", "Yes")),
     Sex = factor(Sex, labels = c("Female", "Male")),
-    GenHlth = factor(GenHlth, labels = c("Excellent", "Very Good", "Good", "Fair", "Poor")),
-    Education = factor(Education, labels = c(
+    GenHlth = factor(GenHlth, levels=1:5, labels = c("Excellent", "Very Good", "Good", "Fair", "Poor")),
+    Education = factor(Education,levels=1:6, labels = c(
       "Never Attended School or only kindergarten",
       "Grades 1-8",
       "Grades 9-11",
@@ -64,7 +44,7 @@ beetus_data <- beetus_data |>
       "Some College/Technical School",
       "College Graduate"
     )),
-    Income = factor(Income, labels = c(
+    Income = factor(Income,levels=1:8, labels = c(
       "Less than $10,000",
       "$10,000 to $15,000",
       "$15,000 to $20,000",
@@ -74,17 +54,75 @@ beetus_data <- beetus_data |>
       "$50,000 to $75,000",
       "$75,000 or more"
     )),
-    Age = factor(Age, labels = c(
+    Age = factor(Age,levels=1:13, labels = c(
       "18-24", "25-29", "30-34", "35-39", "40-44",
       "45-49", "50-54", "55-59", "60-64", "65-69",
       "70-74", "75-79", "80 or older"
     ))
   )
-str(beetus_data)
 ```
 
-18 Categorical Variables and 3 Numerical variables.  Now our data is tidy,
-let's make some contingency tables since we have a bunch of factors.
+
+
+```{r}
+#Quick look at data types
+str(beetus_data)
+#Checking for Missing Data
+beetus_data |>
+  is.na()|>
+  colSums()
+```
+
+
+## Numeric
+
+```{r}
+beetus_data |>
+  select(where(is.numeric)) |>
+  summary()
+```
+
+
+```{r}
+ggplot(beetus_data, aes(x = BMI, fill = Diabetes_binary)) +
+  geom_bar() 
+ggplot(beetus_data, aes(x = Diabetes_binary,y = BMI, fill = Diabetes_binary)) +
+  geom_violin() +
+  labs(
+    title = "Violin Plot of BMI by Diabetes Status",
+    x = "Diabetes Status",
+    y = "BMI",
+    fill = "Diabetes Status"
+  )
+ggplot(beetus_data, aes(x = MentHlth, fill = Diabetes_binary)) +
+  geom_bar(position="dodge") +
+  labs(
+    title = "Density Curve for Mental Health by Diabetes Status",
+    x = "Mental Health (Score)",
+    y = "Count",
+    fill = "Diabetes Status"
+  )
+ggplot(beetus_data, aes(x = PhysHlth, fill = Diabetes_binary)) +
+  geom_bar(position="dodge") +
+  labs(
+    title = "Density Curve for Physical Health by Diabetes Status",
+    x = "Phys Health (Score)",
+    y = "Count",
+    fill = "Diabetes Status"
+  )
+```
+
+
+```{r}
+#Correlation Matrix
+beetus_data |>
+select(where(is.numeric)) |>
+cor() |>
+round(3)
+```
+
+## Categorical
+
 ```{r}
 cont_tables <- lapply(names(beetus_data)[-which(names(beetus_data) == "Diabetes_binary")], function(var) {
   table(beetus_data[[var]], beetus_data$Diabetes_binary)
@@ -95,28 +133,60 @@ names(cont_tables) <- names(beetus_data)[-which(names(beetus_data) == "Diabetes_
 cont_tables
 ```
 
-
 Let's make some graphs as well.
 
-#distributions for bmi/age etc...
-```{r}
-ggplot(beetus_data, aes(x = Diabetes_binary)) +
-  geom_bar()
-
-ggplot(beetus_data, aes(x =  Diabetes_binary )) + geom_bar()
-ggplot(beetus_data, aes(x =  Smoker )) + geom_bar()
-ggplot(beetus_data, aes(x =  HighBP )) + geom_bar()
-ggplot(beetus_data, aes(x =  HighChol )) + geom_bar()
-```
-```{r}
-```
+#distributions for bmi/age etc... clean up titles
 
 ```{r}
-#Correlation Matrix
-beetus_data |>
-select(where(is.numeric)) |>
-cor() |>
-round(3)
+#Showing plots of variables with 2 factor levels
+twofact_plot<- beetus_data |>
+  #Select variables with only 2 factor levels for clean plotting
+  select(Diabetes_binary, where(~ is.factor(.) && nlevels(.) == 2)) |>
+  pivot_longer(
+    cols = -Diabetes_binary, 
+    names_to = "Variable",   
+    values_to = "Value"      
+  )
+#some scaling issues
+ggplot(twofact_plot, aes(x = Value, fill = Diabetes_binary)) +
+  geom_bar(position = "dodge") +
+  facet_wrap(~ Variable, scales = "free_x") + 
+  #tilted for readability
+  theme(axis.text.x = element_text(angle = 10))
+
+#Plots for more than 2 factor levels
+multifact_data <- beetus_data |>
+  select(Diabetes_binary, where(~ is.factor(.) && nlevels(.) > 2)) |>
+  pivot_longer(
+    cols = -Diabetes_binary, 
+    names_to = "Variable",   
+    values_to = "Value"      
+  )
+# Create individual plots for each variable
+plots <- list() # Empty list to store plots
+# Get unique variable names
+unique_variables <- unique(multifact_data$Variable) 
+for (var in unique_variables) {
+  plot <- multifact_data |>
+    filter(Variable == var) |> 
+    ggplot(aes(x = Value, fill = Diabetes_binary)) +
+    geom_bar(position = "dodge") +
+    labs(
+      title = paste("Distribution of", var, "by Diabetes Status"),
+      x = var,
+      y = "Count",
+      fill = "Diabetes Status"
+    ) +
+    
+    theme(axis.text.x = element_text(angle = 10))
+  # Store the plot in the list
+  plots[[var]] <- plot
+}
+plots[[unique_variables[1]]]
+plots[[unique_variables[2]]]
+plots[[unique_variables[3]]]
+plots[[unique_variables[4]]]
 ```
+
 
 [Click here for the Modeling Page](Modeling.html)

@@ -5,7 +5,64 @@ format: html
 editor: visual
 ---
 
-## Quarto
+```{r,warning=FALSE}
+library(tidyverse)
+library(tidymodels)
+```
+
+```{r}
+beetus_data<-read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
+beetus_data <- beetus_data |>
+  mutate(
+    Diabetes_binary = factor(Diabetes_binary, levels=c(0,1), labels = c("No Diabetes", "Pre/Diabetes")),
+    HighBP = factor(HighBP, labels = c("No High BP", "High BP")),
+    HighChol = factor(HighChol, labels = c("No High Cholesterol", "High Cholesterol")),
+    CholCheck = factor(CholCheck, labels = c("No Cholesterol Check", "Cholesterol Check")),
+    Smoker = factor(Smoker, labels = c("Non-Smoker", "Smoker")),
+    Stroke = factor(Stroke, labels = c("No Stroke", "Stroke")),
+    HeartDiseaseorAttack = factor(HeartDiseaseorAttack, labels = c("No", "Yes")),
+    PhysActivity = factor(PhysActivity, labels = c("No Physical Activity", "Physical Activity")),
+    Fruits = factor(Fruits, labels = c("No", "Yes")),
+    Veggies = factor(Veggies, labels = c("No", "Yes")),
+    HvyAlcoholConsump = factor(HvyAlcoholConsump, labels = c("No", "Yes")),
+    AnyHealthcare = factor(AnyHealthcare, labels = c("No", "Yes")),
+    NoDocbcCost = factor(NoDocbcCost, labels = c("No", "Yes")),
+    DiffWalk = factor(DiffWalk, labels = c("No", "Yes")),
+    Sex = factor(Sex, labels = c("Female", "Male")),
+    GenHlth = factor(GenHlth, levels=1:5, labels = c("Excellent", "Very Good", "Good", "Fair", "Poor")),
+    Education = factor(Education,levels=1:6, labels = c(
+      "Never Attended School or only kindergarten",
+      "Grades 1-8",
+      "Grades 9-11",
+      "Grade 12/GED",
+      "Some College/Technical School",
+      "College Graduate"
+    )),
+    Income = factor(Income,levels=1:8, labels = c(
+      "Less than $10,000",
+      "$10,000 to $15,000",
+      "$15,000 to $20,000",
+      "$20,000 to $25,000",
+      "$25,000 to $35,000",
+      "$35,000 to $50,000",
+      "$50,000 to $75,000",
+      "$75,000 or more"
+    )),
+    Age = factor(Age,levels=1:13, labels = c(
+      "18-24", "25-29", "30-34", "35-39", "40-44",
+      "45-49", "50-54", "55-59", "60-64", "65-69",
+      "70-74", "75-79", "80 or older"
+    ))
+  )
+```
+
+```{r}
+set.seed(10)
+beetus_split<- initial_split(beetus_data,prop=0.7)
+beetus_train<- training(beetus_split)
+beetus_test<- testing(beetus_split)
+beetus_fold <- vfold_cv(beetus_train, 10)
+```
 
 
-[Click here for the EDA](EDA.html)
+
