@@ -14,20 +14,12 @@ library(tidymodels)
 beetus_data<-read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
 beetus_data <- beetus_data |>
   mutate(
-    Diabetes_binary = factor(Diabetes_binary, levels=c(0,1), labels = c("No Diabetes", "Pre/Diabetes")),
+    Diabetes_binary = factor(Diabetes_binary, labels = c("No Diabetes", "Pre/Diabetes")),
     HighBP = factor(HighBP, labels = c("No High BP", "High BP")),
     HighChol = factor(HighChol, labels = c("No High Cholesterol", "High Cholesterol")),
-    CholCheck = factor(CholCheck, labels = c("No Cholesterol Check", "Cholesterol Check")),
     Smoker = factor(Smoker, labels = c("Non-Smoker", "Smoker")),
-    Stroke = factor(Stroke, labels = c("No Stroke", "Stroke")),
-    HeartDiseaseorAttack = factor(HeartDiseaseorAttack, labels = c("No", "Yes")),
     PhysActivity = factor(PhysActivity, labels = c("No Physical Activity", "Physical Activity")),
-    Fruits = factor(Fruits, labels = c("No", "Yes")),
-    Veggies = factor(Veggies, labels = c("No", "Yes")),
-    HvyAlcoholConsump = factor(HvyAlcoholConsump, labels = c("No", "Yes")),
-    AnyHealthcare = factor(AnyHealthcare, labels = c("No", "Yes")),
-    NoDocbcCost = factor(NoDocbcCost, labels = c("No", "Yes")),
-    DiffWalk = factor(DiffWalk, labels = c("No", "Yes")),
+
     Sex = factor(Sex, labels = c("Female", "Male")),
     GenHlth = factor(GenHlth, levels=1:5, labels = c("Excellent", "Very Good", "Good", "Fair", "Poor")),
     Education = factor(Education,levels=1:6, labels = c(
@@ -57,12 +49,77 @@ beetus_data <- beetus_data |>
 ```
 
 ```{r}
+#added to make computation easier
+beetus_filtered <- beetus_data |>
+  select(Diabetes_binary,BMI,HighBP)
+
 set.seed(10)
-beetus_split<- initial_split(beetus_data,prop=0.7)
+beetus_split<- initial_split(beetus_filtered,prop=0.7)
 beetus_train<- training(beetus_split)
 beetus_test<- testing(beetus_split)
-beetus_fold <- vfold_cv(beetus_train, 10)
+beetus_folds <- vfold_cv(beetus_train, 5)
 ```
+
+
+## Classification
+
+#explain what it is etc...
+
+```{r}
+tree_rec <- recipe(Diabetes_binary ~., data = beetus_train) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_normalize(all_numeric(), -all_outcomes())
+
+
+tree_mod <- decision_tree(tree_depth = tune(),
+                          min_n=20,
+                          cost_complexity = tune()) |> 
+                          set_engine("rpart") |>
+                          set_mode("classification")
+
+tree_wkf <- workflow() |>
+  add_recipe(tree_rec) |>
+  add_model(tree_mod)
+
+tree_grid <- grid_regular(cost_complexity(),
+                          tree_depth(),
+                          levels = c(3,3))
+
+tree_fits <- tree_wkf |>
+  tune_grid(resamples = beetus_folds,
+            metrics=metric_set(mn_log_loss),
+            grid = tree_grid)
+tree_fits |>
+  collect_metrics() |>
+  filter(.metric == "mn_log_loss") 
+```
+
+```{r}
+#Selecting best fit
+tree_best_params <- select_best(tree_fits,metric="mn_log_loss")
+
+tree_final_wkf <- tree_wkf |>
+  finalize_workflow(tree_best_params)
+
+tree_final_fit <- tree_final_wkf |> 
+  last_fit(beetus_split, metrics = metric_set(mn_log_loss))
+
+tree_final_fit |>
+  collect_metrics()
+```
+
+
+```{r}
+tree_final_model <- extract_workflow(tree_final_fit)
+tree_final_model %>%
+  extract_fit_engine() %>%
+  rpart.plot::rpart.plot(roundint = FALSE)
+```
+#add coefficietns and stuff
+
+
+## Random Forest
+
 
 
 
