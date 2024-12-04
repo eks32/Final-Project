@@ -8,6 +8,7 @@ editor: visual
 ```{r,warning=FALSE}
 library(tidyverse)
 library(tidymodels)
+library(ranger)
 ```
 
 ```{r}
@@ -83,6 +84,7 @@ tree_wkf <- workflow() |>
 
 tree_grid <- grid_regular(cost_complexity(),
                           tree_depth(),
+                          #adjust here
                           levels = c(3,3))
 
 tree_fits <- tree_wkf |>
@@ -102,7 +104,7 @@ tree_final_wkf <- tree_wkf |>
   finalize_workflow(tree_best_params)
 
 tree_final_fit <- tree_final_wkf |> 
-  last_fit(beetus_split, metrics = metric_set(mn_log_loss))
+  last_fit(beetus_split, metrics = metric_set(accuracy,mn_log_loss))
 
 tree_final_fit |>
   collect_metrics()
@@ -120,6 +122,45 @@ tree_final_model %>%
 
 ## Random Forest
 
+```{r}
+#might have to change recipe if running model
+rf_rec <- recipe(Diabetes_binary ~., data = beetus_train) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_normalize(all_numeric(), -all_outcomes())
 
+rf_spec <- rand_forest(mtry = tune()) |>
+  set_engine("ranger",
+             num.threads=parallel::detectCores(),
+             importance = "permutation") |>
+  set_mode("classification")
+
+rf_wkf <- workflow() |>
+  add_recipe(rf_rec) |>
+  add_model(rf_spec)
+```
+
+```{r}
+rf_fit <- rf_wkf |>
+  tune_grid(resamples = beetus_folds,
+            #adjust here
+  grid = 7,
+  metrics = metric_set(accuracy, mn_log_loss))
+
+rf_fit |>
+  collect_metrics() |>
+  filter(.metric == "mn_log_loss")
+```
+
+```{r}
+rf_best_param <-select_best(rf_fit,metric="mn_log_loss")
+rf_best_param
+rf_final_wkf <- rf_wkf |>
+  finalize_workflow(rf_best_param)
+rf_final_fit <- rf_final_wkf |>
+  last_fit(beetus_split,metrics=metric_set(accuracy,mn_log_loss))
+rf_final_fit |>
+    collect_metrics()
+
+```
 
 
