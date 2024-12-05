@@ -7,33 +7,36 @@ editor: visual
 
 
 ## Introduction 
+This exploratory data analysis investigates the [CDC Diabetes Dataset] (https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/) to understand factors associated with diabetes prevalence. We want to find which biological and lifestyle factors can influence diabetes.  Primarily the variables we were interested in were:
+  -If the participant has High Blood Pressure (Yes/No)
+  -If the participant has High Cholesterol (Yes/No)
+  -If the participant does physical activity (Yes/No)
+  -The participant's BMI (Integer)
+  -The participant's Age (Integer)
+  -The participant's Gender (M/F)
+  -The participants perception of their overall health     
+  
+These factors are analyzed to explore their relationships with the binary outcome variable, Diabetes_binary, which indicates the presence or absence of diabetes. By examining these variables, this analysis aims to uncover patterns and insights that may inform predictive modeling for diabetes risk.
 
-#redo
-Let's take a look at our data. Let's start with looking at the data/variable types and checking for missing values.
 
 ```{r,warning=FALSE}
+#Loading Libraries
 library(tidyverse)
 library(tidymodels)
 ```
 
 ```{r}
+#Loading our data.
 beetus_data<-read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
+#Changing to factors and adding names.  
 beetus_data <- beetus_data |>
   mutate(
-    Diabetes_binary = factor(Diabetes_binary, levels=c(0,1), labels = c("No Diabetes", "Pre/Diabetes")),
+    Diabetes_binary = factor(Diabetes_binary, labels = c("No Diabetes", "Pre/Diabetes")),
     HighBP = factor(HighBP, labels = c("No High BP", "High BP")),
     HighChol = factor(HighChol, labels = c("No High Cholesterol", "High Cholesterol")),
-    CholCheck = factor(CholCheck, labels = c("No Cholesterol Check", "Cholesterol Check")),
     Smoker = factor(Smoker, labels = c("Non-Smoker", "Smoker")),
-    Stroke = factor(Stroke, labels = c("No Stroke", "Stroke")),
-    HeartDiseaseorAttack = factor(HeartDiseaseorAttack, labels = c("No", "Yes")),
     PhysActivity = factor(PhysActivity, labels = c("No Physical Activity", "Physical Activity")),
-    Fruits = factor(Fruits, labels = c("No", "Yes")),
-    Veggies = factor(Veggies, labels = c("No", "Yes")),
-    HvyAlcoholConsump = factor(HvyAlcoholConsump, labels = c("No", "Yes")),
-    AnyHealthcare = factor(AnyHealthcare, labels = c("No", "Yes")),
-    NoDocbcCost = factor(NoDocbcCost, labels = c("No", "Yes")),
-    DiffWalk = factor(DiffWalk, labels = c("No", "Yes")),
+
     Sex = factor(Sex, labels = c("Female", "Male")),
     GenHlth = factor(GenHlth, levels=1:5, labels = c("Excellent", "Very Good", "Good", "Fair", "Poor")),
     Education = factor(Education,levels=1:6, labels = c(
@@ -60,33 +63,39 @@ beetus_data <- beetus_data |>
       "70-74", "75-79", "80 or older"
     ))
   )
-```
+#Variables we're interested in
+beetus_filtered <- beetus_data |>
+  select(Diabetes_binary,HighBP,HighChol,PhysActivity,BMI,Age,Sex,GenHlth)
 
+```
+Let's take a look at the structure of our data and check if there's any missing values.
 
 
 ```{r}
 #Quick look at data types
-str(beetus_data)
+str(beetus_filtered)
 #Checking for Missing Data
-beetus_data |>
+beetus_filtered |>
   is.na()|>
   colSums()
 ```
 
+No missing values.  Let's check some numerical summaries for BMI.
 
-## Numeric
+
+## Numeric Variables
 
 ```{r}
-beetus_data |>
+beetus_filtered |>
   select(where(is.numeric)) |>
   summary()
 ```
-
+BMI seems slightly skewed.  Let's graph it vs our diabetes binary variable.
 
 ```{r}
-ggplot(beetus_data, aes(x = BMI, fill = Diabetes_binary)) +
+ggplot(beetus_filtered, aes(x = BMI, fill = Diabetes_binary)) +
   geom_bar() 
-ggplot(beetus_data, aes(x = Diabetes_binary,y = BMI, fill = Diabetes_binary)) +
+ggplot(beetus_filtered, aes(x = Diabetes_binary,y = BMI, fill = Diabetes_binary)) +
   geom_violin() +
   labs(
     title = "Violin Plot of BMI by Diabetes Status",
@@ -94,52 +103,31 @@ ggplot(beetus_data, aes(x = Diabetes_binary,y = BMI, fill = Diabetes_binary)) +
     y = "BMI",
     fill = "Diabetes Status"
   )
-ggplot(beetus_data, aes(x = MentHlth, fill = Diabetes_binary)) +
-  geom_bar(position="dodge") +
-  labs(
-    title = "Density Curve for Mental Health by Diabetes Status",
-    x = "Mental Health (Score)",
-    y = "Count",
-    fill = "Diabetes Status"
-  )
-ggplot(beetus_data, aes(x = PhysHlth, fill = Diabetes_binary)) +
-  geom_bar(position="dodge") +
-  labs(
-    title = "Density Curve for Physical Health by Diabetes Status",
-    x = "Phys Health (Score)",
-    y = "Count",
-    fill = "Diabetes Status"
-  )
 ```
+On visual inspection, there does seem to be a difference in our samples.  
+Now let's look at our categorical variables with contingency tables.
 
+## Categorical Variables
 
 ```{r}
-#Correlation Matrix
-beetus_data |>
-select(where(is.numeric)) |>
-cor() |>
-round(3)
-```
-
-## Categorical
-
-```{r}
-cont_tables <- lapply(names(beetus_data)[-which(names(beetus_data) == "Diabetes_binary")], function(var) {
-  table(beetus_data[[var]], beetus_data$Diabetes_binary)
+cont_tables <- lapply(names(beetus_filtered)[-which(names(beetus_filtered) == "Diabetes_binary")], function(var) {
+  table(beetus_filtered[[var]], beetus_filtered$Diabetes_binary)
 })
 
-names(cont_tables) <- names(beetus_data)[-which(names(beetus_data) == "Diabetes_binary")]
+names(cont_tables) <- names(beetus_filtered)[-which(names(beetus_filtered) == "Diabetes_binary")]
 
 cont_tables
+
+
 ```
 
-Let's make some graphs as well.
+From the contingency table for HighBP, we observe a higher proportion of individuals with diabetes who have high blood pressure compared to those without diabetes. This reinforces the connection between hypertension and diabetes.
 
-#distributions for bmi/age etc... clean up titles
+Let's make some graphs now.
 
 ```{r}
 #Showing plots of variables with 2 factor levels
-twofact_plot<- beetus_data |>
+twofact_plot<- beetus_filtered |>
   #Select variables with only 2 factor levels for clean plotting
   select(Diabetes_binary, where(~ is.factor(.) && nlevels(.) == 2)) |>
   pivot_longer(
@@ -155,7 +143,7 @@ ggplot(twofact_plot, aes(x = Value, fill = Diabetes_binary)) +
   theme(axis.text.x = element_text(angle = 10))
 
 #Plots for more than 2 factor levels
-multifact_data <- beetus_data |>
+multifact_data <- beetus_filtered |>
   select(Diabetes_binary, where(~ is.factor(.) && nlevels(.) > 2)) |>
   pivot_longer(
     cols = -Diabetes_binary, 
@@ -184,9 +172,12 @@ for (var in unique_variables) {
 }
 plots[[unique_variables[1]]]
 plots[[unique_variables[2]]]
-plots[[unique_variables[3]]]
-plots[[unique_variables[4]]]
 ```
+General health seems to have a visual difference as well.
+
+### Conclusion
+
+This analysis highlights that BMI, HighBP, and self-reported health ratings (GenHlth) appear to have differences. These variables could serve as valuable inputs for predictive modeling. Our modeling section will further explore these variables to see if they are significant.
 
 
 [Click here for the Modeling Page](Modeling.html)

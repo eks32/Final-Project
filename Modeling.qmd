@@ -9,10 +9,28 @@ editor: visual
 library(tidyverse)
 library(tidymodels)
 library(ranger)
+library(parallel)
+library(plumber)
 ```
 
+## Modeling:
+
+In the [EDA](EDA.html) page we explored the [Diabetes Health Indicator's Dataset](https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/).  We were interested in exploring biological markers variables influencing the participant's risk of diabetes. Primarily the variables we were interested in were:
+  -If the participant has High Blood Pressure (Yes/No)
+  -If the participant has High Cholesterol (Yes/No)
+  -If the participant does physical activity (Yes/No)
+  -The participant's BMI (Integer)
+  -The participant's Age (Integer)
+  -The participant's Gender (M/F)
+  -The participants perception of their overall health                                                                          (Excellent/Good/Fair/Poor)
+  We will fit two models in interest, a classification tree and random forest.  We have split our data into a 70/30 training/test set and using a 5 fold cross-validation to improve variability.  Our goal is the find the best fitting model.   
+  
+  
+
 ```{r}
+#Loading our data.
 beetus_data<-read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
+#Changing to factors and adding names.  
 beetus_data <- beetus_data |>
   mutate(
     Diabetes_binary = factor(Diabetes_binary, labels = c("No Diabetes", "Pre/Diabetes")),
@@ -47,120 +65,139 @@ beetus_data <- beetus_data |>
       "70-74", "75-79", "80 or older"
     ))
   )
+#Variables we're interested in
+beetus_filtered <- beetus_data |>
+  select(Diabetes_binary,HighBP,HighChol,PhysActivity,BMI,Age,Sex,GenHlth)
+
 ```
 
 ```{r}
-#added to make computation easier
-beetus_filtered <- beetus_data |>
-  select(Diabetes_binary,BMI,HighBP)
-
 set.seed(10)
+#Splitting data into training/test
 beetus_split<- initial_split(beetus_filtered,prop=0.7)
 beetus_train<- training(beetus_split)
 beetus_test<- testing(beetus_split)
+#Cross Validation
 beetus_folds <- vfold_cv(beetus_train, 5)
 ```
 
 
-## Classification
+## Classification Tree
 
-#explain what it is etc...
+Tree based methods such as classification trees make predictions about which class/category an observation belongs to based on its features.  Basically turning it into a binary decision.  The final nodes are leaves and each leaf presents a classification (IE: Has Diabetes or Does not Have Diabetes). These models are easier to interpret but are sensitive to variability in data. Below we will conduct a classification tree analysis. 
 
 ```{r}
+#Creating recipe.  Setting dummy variables/normalization
 tree_rec <- recipe(Diabetes_binary ~., data = beetus_train) |>
   step_dummy(all_nominal_predictors()) |>
   step_normalize(all_numeric(), -all_outcomes())
 
-
+#Setting Engine
 tree_mod <- decision_tree(tree_depth = tune(),
                           min_n=20,
                           cost_complexity = tune()) |> 
                           set_engine("rpart") |>
                           set_mode("classification")
-
+#Workflow
 tree_wkf <- workflow() |>
   add_recipe(tree_rec) |>
   add_model(tree_mod)
 
+#Tuning parameters
 tree_grid <- grid_regular(cost_complexity(),
                           tree_depth(),
                           #adjust here
                           levels = c(3,3))
-
+#Fitting our model
 tree_fits <- tree_wkf |>
   tune_grid(resamples = beetus_folds,
             metrics=metric_set(mn_log_loss),
             grid = tree_grid)
+#Model performance metric
 tree_fits |>
   collect_metrics() |>
   filter(.metric == "mn_log_loss") 
 ```
+We will choose the best model primarily based on the log loss metric.
 
 ```{r}
 #Selecting best fit
 tree_best_params <- select_best(tree_fits,metric="mn_log_loss")
-
+tree_best_params
+#Final Workflow
 tree_final_wkf <- tree_wkf |>
   finalize_workflow(tree_best_params)
-
+#Final Fit
 tree_final_fit <- tree_final_wkf |> 
   last_fit(beetus_split, metrics = metric_set(accuracy,mn_log_loss))
-
+#Final Fit Metrics
 tree_final_fit |>
   collect_metrics()
 ```
-
+Now a tree diagram showing our variable contributions.
 
 ```{r}
 tree_final_model <- extract_workflow(tree_final_fit)
 tree_final_model %>%
   extract_fit_engine() %>%
   rpart.plot::rpart.plot(roundint = FALSE)
+tree_final_model
 ```
-#add coefficietns and stuff
 
 
 ## Random Forest
 
+Random forest is a type of ensemble model where many models are generated using bootstrap sampling of every permutation of variable choices(similar to trees but with randomness) which are then combined to fit a model.  This method is good for emphasizing the importance of each classification.  However it is much more computationally intensive.  
+
 ```{r}
-#might have to change recipe if running model
+#Random Forest Recipe 
 rf_rec <- recipe(Diabetes_binary ~., data = beetus_train) |>
   step_dummy(all_nominal_predictors()) |>
   step_normalize(all_numeric(), -all_outcomes())
 
+#Engine
 rf_spec <- rand_forest(mtry = tune()) |>
   set_engine("ranger",
+             #I like to think that this is helping.
              num.threads=parallel::detectCores(),
              importance = "permutation") |>
   set_mode("classification")
-
+#Workflow
 rf_wkf <- workflow() |>
   add_recipe(rf_rec) |>
   add_model(rf_spec)
 ```
 
 ```{r}
+#Tuning Parameters & Fitting
 rf_fit <- rf_wkf |>
   tune_grid(resamples = beetus_folds,
             #adjust here
   grid = 7,
   metrics = metric_set(accuracy, mn_log_loss))
-
+#Fitted Model Metrics
 rf_fit |>
   collect_metrics() |>
   filter(.metric == "mn_log_loss")
 ```
 
 ```{r}
+#Choosing Best Model
 rf_best_param <-select_best(rf_fit,metric="mn_log_loss")
 rf_best_param
+
+#Final Workflow
 rf_final_wkf <- rf_wkf |>
   finalize_workflow(rf_best_param)
+#Final Fit
 rf_final_fit <- rf_final_wkf |>
   last_fit(beetus_split,metrics=metric_set(accuracy,mn_log_loss))
 rf_final_fit |>
     collect_metrics()
-
+tree_final_fit |>
+  collect_metrics()
 ```
+
+Based on our models, the random forest seems to be the better fitting model with a lower log loss metric of 0.321 with mtry = 5 vs the classification tree's 0.338 with tree depth of 4.  The random forest has a slightly higher accuracy as well((True Positives + True Negatives)/Total Predictions). 
 
 
