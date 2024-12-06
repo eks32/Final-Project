@@ -11,6 +11,7 @@ library(parallel)
 library(GGally)
 library(leaflet)
 
+
 #Loading our data.
 beetus_data<-read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
 #Changing to factors and adding names.  
@@ -108,6 +109,19 @@ function(HighBP = "High BP",
   # Return the prediction
   list(prediction = pred_fn$.pred_class)
 }
+#Example calls:
+#curl -X 'GET' \
+#'http://127.0.0.1:7171/pred?HighBP=No%20High%20BP&HighChol=No%20High%20Cholesterol&PhysActivity=No%20Physical%20Activity&BMI=80&Age=18-24&Sex=Female&GenHlth=Good' \
+#-H 'accept: */*'
+
+#curl -X 'GET' \
+#'http://127.0.0.1:7171/pred?HighBP=High%20BP&HighChol=High%20Cholesterol&PhysActivity=No%20Physical%20Activity&BMI=50&Age=45-49&Sex=Male&GenHlth=Poor' \
+#-H 'accept: */*'
+
+#curl -X 'GET' \
+#'http://127.0.0.1:7171/pred?HighBP=No%20High%20BP&HighChol=No%20High%20Cholesterol&PhysActivity=No%20Physical%20Activity&BMI=80&Age=18-24&Sex=Female&GenHlth=Good' \
+#-H 'accept: */*'
+
 #Info Endpoint
 #*Name Info
 #* @get /info 
@@ -121,25 +135,28 @@ function() {
 
 # Function to compute the confusion matrix and plot it
 #* Compute and Plot Confusion Matrix
-#* @serializer contentType list(type = "image/png")
+#* @serializer png
 #* @get /confusion
 function() {
-  # Make predictions on the entire data set
+  #get predictions
   predictions <- predict(final_model, baked_data)
   pred_classes <- predictions$.pred_class
-  
-  # Compute the confusion matrix
-  cm <- conf_mat(truth = baked_data$Diabetes_binary, estimate = pred_classes)
-  
+  #convert to factors so they play nice
+  actual <- as.factor(baked_data$Diabetes_binary)
+  predicted <- as.factor(pred_classes)
+  # Compute the confusion matrix using caret library
+  cm <- confusionMatrix(data = predicted, reference = actual)
+  cm
   # Convert confusion matrix to a data frame
-  cm_table <- as_tibble(cm$table)
-  
+  cm_df <- as.data.frame(cm$table)
+  colnames(cm_df) <- c("Prediction", "Truth", "Freq")
   # Create the plot
-  plot_cm <- ggplot(cm_table, aes(x = Prediction, y = Truth, fill = n)) +
-    geom_tile() +
-    geom_text(aes(label = n)) +
+  plot_cm <- ggplot(cm_df, aes(x = Prediction, y = Truth, fill = Freq)) + 
+    geom_tile(aes(fill = Freq), color = "grey") +
     labs(title = "Confusion Matrix", x = "Predicted", y = "Actual")
+  #print plot
   print(plot_cm)
 }
 
-
+# Example Call:
+# /confusion
