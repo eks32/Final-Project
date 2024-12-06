@@ -10,7 +10,8 @@ library(ranger)
 library(parallel)
 library(GGally)
 library(leaflet)
-
+library(caret)
+library(ggplot2)
 
 #Loading our data.
 beetus_data<-read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
@@ -114,24 +115,21 @@ function(HighBP = "High BP",
 #'http://127.0.0.1:7171/pred?HighBP=No%20High%20BP&HighChol=No%20High%20Cholesterol&PhysActivity=No%20Physical%20Activity&BMI=80&Age=18-24&Sex=Female&GenHlth=Good' \
 #-H 'accept: */*'
 
-#curl -X 'GET' \
-#'http://127.0.0.1:7171/pred?HighBP=High%20BP&HighChol=High%20Cholesterol&PhysActivity=No%20Physical%20Activity&BMI=50&Age=45-49&Sex=Male&GenHlth=Poor' \
-#-H 'accept: */*'
-
-#curl -X 'GET' \
-#'http://127.0.0.1:7171/pred?HighBP=No%20High%20BP&HighChol=No%20High%20Cholesterol&PhysActivity=No%20Physical%20Activity&BMI=80&Age=18-24&Sex=Female&GenHlth=Good' \
-#-H 'accept: */*'
+##curl -X 'GET' \
+##'http://127.0.0.1:7171/pred?HighBP=High%20BP&HighChol=High%20Cholesterol&PhysActivity=No%20Physical%20Activity&BMI=50&Age=45-49&Sex=Male&GenHlth=Poor' \
+##-H 'accept: */*'
+##curl -X 'GET' \
+##'http://127.0.0.1:7171/pred?HighBP=No%20High%20BP&HighChol=No%20High%20Cholesterol&PhysActivity=No%20Physical%20Activity&BMI=80&Age=18-24&Sex=Female&GenHlth=Good' \
+##-H 'accept: */*'
 
 #Info Endpoint
-#*Name Info
+#* Name Info
 #* @get /info 
 function() {
   list(name = "Eric Song",
       githubpage = "https://eks32.github.io/Final-Project/EDA.html"
   )
 }
-
-
 
 # Function to compute the confusion matrix and plot it
 #* Compute and Plot Confusion Matrix

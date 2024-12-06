@@ -2,14 +2,28 @@
 FROM rstudio/plumber
 
 # install the linux libraries needed for plumber
-RUN apt-get update -qq && apt-get install -y  libssl-dev  libcurl4-gnutls-dev  libpng-dev pandoc 
+RUN apt-get update -qq && apt-get install -y \ 
+	libssl-dev \ 
+	libcurl4-gnutls-dev \ 
+	libpng-dev \ 
+	pandoc \ 
+	libxml2-dev \ 
+	libharfbuzz-dev \ 
+	libfribidi-dev \ 
+	libfreetype6-dev \ 
+	libfontconfig1-dev \ 
+	libxft-dev \ 
+	libcairo2-dev
     
     
 # install plumber, GGally
-RUN R -e "install.packages(c('GGally', 'leaflet', 'plumber'))"
+RUN R -e "install.packages(c('GGally', 'leaflet', 'plumber','ranger','tidyverse','tidymodels','parallel','caret','ggplot2'))"
 
 # copy myAPI.R from the current directory into the container
 COPY myAPI.R myAPI.R
+
+# Copy dataset
+COPY diabetes_binary_health_indicators_BRFSS2015.csv diabetes_binary_health_indicators_BRFSS2015.csv
 
 # open port to traffic
 EXPOSE 8000
