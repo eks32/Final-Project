@@ -160,8 +160,8 @@ rf_spec <- rand_forest(mtry = tune()) |>
   set_engine("ranger",
              #I like to think that this is helping.
              num.threads=parallel::detectCores(),
-             importance = "permutation") |>
-  set_mode("classification")
+             importance = "impurity") |>
+      set_mode("classification")
 #Workflow
 rf_wkf <- workflow() |>
   add_recipe(rf_rec) |>
